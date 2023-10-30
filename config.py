@@ -1,0 +1,2 @@
+WIF = 'cU2NccQcppHXpe2yKJum2gXU7dJZzXGoZF3TdFhNMpSivSDqXmdh'
+ADR = 'mmGvDZCpzGpvfMvzFbDWZVxkXGrH91sbXZ'
