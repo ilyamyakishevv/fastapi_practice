@@ -1,5 +1,3 @@
-import os
-import sys
 import datetime
 import pydantic_models 
 from models import *
@@ -8,7 +6,7 @@ from db import *
 from config import WIF, ADR
 from pony.orm import db_session
 
-sys.path.append(os.getcwd())
+
 
 @db_session
 def create_wallet(user: pydantic_models.User = None, private_key: str = None, testnet: bool = False):
@@ -33,7 +31,37 @@ def create_user(tg_id: int, nick: str = None):
     flush()     
     return user
 
-
+@db_session
+def create_transaction(
+    sender: User, 
+    amount_btc_without_fee: float, 
+    receiver_address: str, 
+    fee: float | None = None, 
+    testnet: bool = False
+):
+    wallet_of_sender = bit.Key(sender.wallet.private_key) if not testnet else bit.PrivateKeyTestnet(sender.wallet.private_key)
+    sender.wallet.balance = wallet_of_sender.get_balance()  
+    if not fee:
+        fee = bit.network.fees.get_fee() * 1000    
+    amount_btc_with_fee = amount_btc_without_fee + fee  
+    if amount_btc_without_fee + fee > sender.wallet.balance:
+        return f"Too low balance: {sender.wallet.balance}"
+    
+   
+    output = [(receiver_address, amount_btc_without_fee, 'satoshi')]
+    
+    tx_hash = wallet_of_sender.send(output, fee, absolute_fee=True)     
+    
+    transaction = Transaction(sender=sender,
+                              sender_wallet=sender.wallet,
+                              fee=fee,
+                              sender_address=sender.wallet.address,
+                              receiver_address=receiver_address,
+                              amount_btc_with_fee=amount_btc_with_fee,
+                              amount_btc_without_fee=amount_btc_without_fee,
+                              date_of_transaction=datetime.now(),
+                              tx_hash=tx_hash)
+    return transaction  
 
 # wallet = bit.PrivateKeyTestnet(WIF)
 # print(f"Balance {wallet.get_balance()}")
