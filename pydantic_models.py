@@ -13,9 +13,9 @@ class User(pydantic.BaseModel):
 
 
 class Transaction(pydantic.BaseModel): 
-    id: int 
-    sender: User = None 
-    reciever: User = None
+    id: int
+    sender: User = None
+    receiver: User = None
     sender_wallet: 'Wallet' = None
     receiver_wallet: 'Wallet' = None
     sender_address: str
@@ -24,14 +24,14 @@ class Transaction(pydantic.BaseModel):
     amount_btc_without_fee: float
     fee: float
     date_of_transaction: datetime
-    tx_hash: str 
+    tx_hash: str
 
 
 class Wallet(pydantic.BaseModel):
     id: int
     user: User
     balance: float = 0.0
-    private_ker: str
+    private_key: str
     address: str 
-    sended_transactions: list[Transaction] = []
+    transactions: list[Transaction] = []
     received_transactions: list[Transaction] = []

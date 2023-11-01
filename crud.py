@@ -57,9 +57,81 @@ def create_transaction(
                               fee=fee,
                               sender_address=sender.wallet.address,
                               receiver_address=receiver_address,
-                              amount_btc_with_fee=amount_btc_with_fee,
+                              amount_bts_with_fe=amount_btc_with_fee,
                               amount_btc_without_fee=amount_btc_without_fee,
                               date_of_transaction=datetime.now(),
                               tx_hash=tx_hash)
     return transaction
 
+@db_session
+def update_wallet_balance(wallet: pydantic_models.Wallet): 
+    testnet = False if wallet.private_key.startswith('c') else True
+    bit_wallet = bit.Key(wallet.private_key) if not testnet else bit.PrivateKeyTestnet(wallet.private_key)
+    wallet.balance = bit_wallet.get_balance()
+    return wallet
+
+@db_session 
+def update_all_wallets():
+    for wallet in select(w for w in Wallet)[:]: 
+        update_wallet_balance(wallet)
+        print(wallet.address, wallet.balance)
+    return True
+
+@db_session
+def get_user_by_id(id: int):
+    return User[id]
+
+
+@db_session
+def get_user_by_tg_id(tg_id: int):
+    return User.select(lambda u: u.tg_ID == tg_id).first()
+
+@db_session
+def get_transaction_info(transaction: pydantic_models.Transaction): 
+    return {"id": transaction.id, 
+            "sender": transaction.sender if transaction.sender else None, 
+            "receiver": transaction.receiver if transaction.receiver else None, 
+            "sender_wallet": transaction.sender_wallet if transaction.sender_wallet else None,
+            "receiver_waller":  transaction.receiver_wallet if transaction.receiver_wallet else None,
+            "receiver_address": transaction.receiver_address,
+            "amount_btc_with_fee": transaction.amount_bts_with_fe,
+            "amount_btc_without_fee": transaction.amount_btc_without_fee, 
+            "fee": transaction.fee, 
+            "date_of_transaction": transaction.date_of_transaction, 
+            "tx_hash": transaction.tx_hash }
+
+
+@db_session
+def get_wallet_info(wallet: pydantic_models.Wallet):
+    wallet = update_wallet_balance(wallet)
+    return {"id": wallet.id if wallet.id else None,
+            "user": wallet.user if wallet.user else None,
+            "balance": wallet.balance if wallet.balance else None,
+            "private_key": wallet.private_key if wallet.private_key else None,
+            "address": wallet.address if wallet.address else None,
+            "sended_transactions": wallet.transactions if wallet.transactions else [],
+            "received_transactions": wallet.received_transactions if wallet.received_transactions else []}
+
+
+@db_session
+def get_user_info(user: pydantic_models.User):
+    return {"id": user.id,
+            "tg_ID": user.tg_ID if user.tg_ID else None,
+            "nick": user.nick if user.nick else None,
+            "create_date": user.created_date,
+            "wallet": get_wallet_info(user.wallet),
+            "sended_transactions": user.sended_transactions if user.sended_transactions else [],
+            "received_transactions": user.received_transactions if user.received_transactions else []}
+
+@db_session
+def update_user(user: pydantic_models.User):
+    user_to_update = User[user.id]
+    if user.tg_ID:
+        user_to_update.tg_ID = user.tg_ID
+    if user.nick:
+        user_to_update.nick = user.nick
+    if user.created_date:
+        user_to_update.created_date = user.created_date
+    if user.wallet:
+        user_to_update.wallet = user.wallet
+    return user_to_update
