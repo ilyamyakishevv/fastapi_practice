@@ -25,7 +25,7 @@ def create_wallet(user: pydantic_models.User = None, private_key: str = None, te
 @db_session
 def create_user(tg_id: int, nick: str = None):
     if nick:
-        user = User(tg_ID=tg_id, nick=nick, create_date=datetime.now(), wallet=create_wallet())
+        user = User(tg_ID=tg_id, nick=nick, created_date=datetime.now(), wallet=create_wallet())
     else:
         user = User(tg_ID=tg_id, created_date=datetime.now(), wallet=create_wallet())
     flush()     
@@ -33,24 +33,24 @@ def create_user(tg_id: int, nick: str = None):
 
 @db_session
 def create_transaction(
-    sender: User, 
-    amount_btc_without_fee: float, 
-    receiver_address: str, 
-    fee: float | None = None, 
+    sender: User,
+    amount_btc_without_fee: float,
+    receiver_address: str,
+    fee: float | None = None,
     testnet: bool = False
 ):
     wallet_of_sender = bit.Key(sender.wallet.private_key) if not testnet else bit.PrivateKeyTestnet(sender.wallet.private_key)
-    sender.wallet.balance = wallet_of_sender.get_balance()  
+    sender.wallet.balance = wallet_of_sender.get_balance()
     if not fee:
-        fee = bit.network.fees.get_fee() * 1000    
-    amount_btc_with_fee = amount_btc_without_fee + fee  
+        fee = bit.network.fees.get_fee() * 1000 
+    amount_btc_with_fee = amount_btc_without_fee + fee
     if amount_btc_without_fee + fee > sender.wallet.balance:
         return f"Too low balance: {sender.wallet.balance}"
     
-   
+
     output = [(receiver_address, amount_btc_without_fee, 'satoshi')]
     
-    tx_hash = wallet_of_sender.send(output, fee, absolute_fee=True)     
+    tx_hash = wallet_of_sender.send(output, fee, absolute_fee=True)  
     
     transaction = Transaction(sender=sender,
                               sender_wallet=sender.wallet,
@@ -61,13 +61,5 @@ def create_transaction(
                               amount_btc_without_fee=amount_btc_without_fee,
                               date_of_transaction=datetime.now(),
                               tx_hash=tx_hash)
-    return transaction  
+    return transaction
 
-# wallet = bit.PrivateKeyTestnet(WIF)
-# print(f"Balance {wallet.get_balance()}")
-# print(f"Address {wallet.address}")
-# print(f"Private key {wallet.to_wif()}")
-# print(f"All transactions {wallet.get_transactions()}")
-
-# outputs = [("muh9DYMTWXfPEd9zPnfvCS1yX8hPLbkE9e", 0.000001, 'btc')]
-# transactions = wallet.send(outputs)
