@@ -1,6 +1,5 @@
 import datetime
 import pydantic_models 
-from models import *
 import bit
 from db import *
 from config import WIF, ADR
@@ -83,10 +82,6 @@ def get_user_by_id(id: int):
 
 
 @db_session
-def get_user_by_tg_id(tg_id: int):
-    return User.select(lambda u: u.tg_ID == tg_id).first()
-
-@db_session
 def get_transaction_info(transaction: pydantic_models.Transaction): 
     return {"id": transaction.id, 
             "sender": transaction.sender if transaction.sender else None, 
@@ -124,7 +119,7 @@ def get_user_info(user: pydantic_models.User):
             "received_transactions": user.received_transactions if user.received_transactions else []}
 
 @db_session
-def update_user(user: pydantic_models.User):
+def update_user(user: pydantic_models.UserToUpdate):
     user_to_update = User[user.id]
     if user.tg_ID:
         user_to_update.tg_ID = user.tg_ID

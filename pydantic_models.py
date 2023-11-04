@@ -1,18 +1,19 @@
 import pydantic
 from datetime import datetime
+from typing import List, Optional
 
 
 class User(pydantic.BaseModel):
     id: int
-    td_ID: int 
+    td_ID: int
     nick: str = None
     created_date: datetime
     wallet: "Wallet"
-    sended_transactions: list['Transaction'] = None
-    received_transactions: list['Transaction'] = None
+    sended_transactions: Optional[List['Transaction']] = None
+    received_transactions: Optional[List['Transaction']] = None
 
 
-class Transaction(pydantic.BaseModel): 
+class Transaction(pydantic.BaseModel):
     id: int
     sender: User = None
     receiver: User = None
@@ -35,3 +36,16 @@ class Wallet(pydantic.BaseModel):
     address: str 
     transactions: list[Transaction] = []
     received_transactions: list[Transaction] = []
+
+
+class UserToUpdate(pydantic.BaseModel):
+    id: int
+    tg_ID:  int = None
+    nick:   str = None
+    created_date: datetime = None
+    wallet: 'Wallet' = None
+
+
+class UserToCreate(pydantic.BaseModel):
+    tg_ID:  int = None
+    nick:   str = None
