@@ -61,3 +61,13 @@ def update_user(user_id: int, user: pydantic_models.UserToUpdate = fastapi.Body(
 def delete_usesr(user_id: int = fastapi.Path()):
     crud.get_user_by_id(user_id).delete()
     return True
+
+@api.get("/get_user_wallet/{user_id:int}")
+@crud.db_session
+def get_user_wallet(user_id):
+    return crud.get_wallet_info(crud.User[user_id].wallet)
+
+@api.get("/get_user_transactions/{user_id:int}")
+@crud.db_session
+def get_user_transactions(user_id):
+    return crud.get_user_transactions(user_id)
