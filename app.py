@@ -71,3 +71,14 @@ def get_user_wallet(user_id):
 @crud.db_session
 def get_user_transactions(user_id):
     return crud.get_user_transactions(user_id)
+
+@api.post("/create_transaction")
+@crud.db_session
+def create_transaction(transaction: pydantic_models.Create_Transaction = fastapi.Body()):
+    sender = crud.User.get(tg_ID=transaction.tg_ID)
+    return crud.create_transaction(sender=sender,
+                                   amount_btc_without_fee=transaction.amount_btc_without_fee,
+                                   receiver_address=transaction.receiver_address,
+                                   testnet = True)
+
+

@@ -28,6 +28,12 @@ class Transaction(pydantic.BaseModel):
     tx_hash: str
 
 
+class Create_Transaction(pydantic.BaseModel):
+    tg_ID: int
+    receiver_address: str
+    amount_btc_without_fee: float
+
+
 class Wallet(pydantic.BaseModel):
     id: int
     user: User
@@ -49,3 +55,7 @@ class UserToUpdate(pydantic.BaseModel):
 class UserToCreate(pydantic.BaseModel):
     tg_ID:  int = None
     nick:   str = None
+
+
+
+UserToUpdate.update_forward_refs()

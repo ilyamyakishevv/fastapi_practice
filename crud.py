@@ -63,7 +63,7 @@ def create_transaction(
     return transaction.to_dict()
 
 @db_session
-def update_wallet_balance(wallet: pydantic_models.Wallet): 
+def update_wallet_balance(wallet: pydantic_models.Wallet):
     testnet = False if wallet.private_key.startswith('c') else True
     bit_wallet = bit.Key(wallet.private_key) if not testnet else bit.PrivateKeyTestnet(wallet.private_key)
     wallet.balance = bit_wallet.get_balance()
@@ -132,7 +132,7 @@ def get_user_transactions(user_id: int):
             "receiver_waller":  transaction.receiver_wallet if transaction.receiver_wallet else None,
             "receiver_address": transaction.receiver_address,
             "amount_btc_with_fee": transaction.amount_bts_with_fe,
-            "amount_btc_without_fee": transaction.amount_btc_without_fee, 
+            "amount_btc_without_fee": transaction.amount_btc_without_fee,
             "fee": transaction.fee, 
             "date_of_transaction": transaction.date_of_transaction,
             "tx_hash": transaction.tx_hash}
