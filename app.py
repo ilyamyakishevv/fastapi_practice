@@ -79,6 +79,6 @@ def create_transaction(transaction: pydantic_models.Create_Transaction = fastapi
     return crud.create_transaction(sender=sender,
                                    amount_btc_without_fee=transaction.amount_btc_without_fee,
                                    receiver_address=transaction.receiver_address,
-                                   testnet = True)
+                                   testnet=True)
 
 
