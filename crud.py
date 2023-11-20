@@ -101,7 +101,7 @@ def get_wallet_info(wallet: pydantic_models.Wallet):
     wallet = update_wallet_balance(wallet)
     return {"id": wallet.id if wallet.id else None,
             "user": wallet.user if wallet.user else None,
-            "balance": wallet.balance if wallet.balance else None,
+            "balance": wallet.balance if wallet.balance else 1000.0,
             "private_key": wallet.private_key if wallet.private_key else None,
             "address": wallet.address if wallet.address else None,
             "sended_transactions": wallet.transactions if wallet.transactions else [],
