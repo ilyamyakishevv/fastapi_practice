@@ -120,22 +120,27 @@ def get_user_info(user: pydantic_models.User):
 
 @db_session
 def get_user_transactions(user_id: int):
-    all_transactions = select(t for t in Transaction)[:]
+    all_user_transactions = []
+    all_transactions = list(select(t for t in Transaction))
     print(all_transactions)
     for transaction in all_transactions:
-        print(transaction.sender) 
+        print(transaction.id) 
         if transaction.sender == User[user_id] or transaction.receiver == User[user_id]:
-            return {"id": transaction.id, 
-            "sender": transaction.sender if transaction.sender else None, 
-            "receiver": transaction.receiver if transaction.receiver else None, 
-            "sender_wallet": transaction.sender_wallet if transaction.sender_wallet else None,
-            "receiver_waller":  transaction.receiver_wallet if transaction.receiver_wallet else None,
-            "receiver_address": transaction.receiver_address,
-            "amount_btc_with_fee": transaction.amount_bts_with_fe,
-            "amount_btc_without_fee": transaction.amount_btc_without_fee,
-            "fee": transaction.fee, 
-            "date_of_transaction": transaction.date_of_transaction,
-            "tx_hash": transaction.tx_hash}
+            all_user_transactions.append({
+                "id": transaction.id, 
+                "sender": transaction.sender if transaction.sender else None, 
+                "receiver": transaction.receiver if transaction.receiver else None, 
+                "sender_wallet": transaction.sender_wallet if transaction.sender_wallet else None,
+                "receiver_wallet": transaction.receiver_wallet if transaction.receiver_wallet else None,
+                "receiver_address": transaction.receiver_address,
+                "amount_btc_with_fee": transaction.amount_bts_with_fe,
+                "amount_btc_without_fee": transaction.amount_btc_without_fee,
+                "fee": transaction.fee, 
+                "date_of_transaction": transaction.date_of_transaction,
+                "tx_hash": transaction.tx_hash
+            })
+
+    return all_user_transactions
         
 @db_session
 def update_user(user: pydantic_models.UserToUpdate):
